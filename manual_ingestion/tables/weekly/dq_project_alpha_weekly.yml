@@ -1,0 +1,271 @@
+version: 2
+
+models:
+  - name: dq_project_alpha_monthly_latest_load
+
+    description: latest monthly load used for data quality validation
+
+    tags:
+      - dq
+      - monthly
+      - project_alpha
+
+    tests:
+
+      - dbt_utils.expression_is_true:
+          expression: "count(*) > 0"
+          config:
+            severity: error
+            tags: [dq, volume]
+
+      - financial_balance_ratio:
+          min_ratio: 0.05
+          max_ratio: 20
+          config:
+            severity: warn
+            tags: [dq, financial, anomaly]
+
+      - filename_period_match:
+          config:
+            severity: error
+            tags: [dq, reconciliation]
+
+      - customer_single_classification:
+          config:
+            severity: error
+            tags: [dq, customer]
+
+      - channel_single_category:
+          config:
+            severity: error
+            tags: [dq, channel]
+
+      - cluster_single_region:
+          config:
+            severity: error
+            tags: [dq, geography]
+
+      - revenue_variation:
+          threshold_pct: 300
+          config:
+            severity: warn
+            tags: [dq, historical]
+
+      - rowcount_variation:
+          threshold_pct: 80
+          config:
+            severity: warn
+            tags: [dq, historical]
+
+      - customer_cardinality_variation:
+          threshold_pct: 70
+          config:
+            severity: warn
+            tags: [dq, historical]
+
+      - reference_cardinality_variation:
+          threshold_pct: 70
+          config:
+            severity: warn
+            tags: [dq, historical]
+
+    columns:
+
+      - name: source_id
+        tests:
+          - not_null:
+              config:
+                severity: error
+                tags: [dq, completeness]
+
+      - name: reference_code
+        tests:
+          - not_null:
+              config:
+                severity: error
+                tags: [dq, completeness]
+
+      - name: reference_name
+        tests:
+          - not_null:
+              config:
+                severity: error
+                tags: [dq, completeness]
+
+      - name: customer_name
+        tests:
+          - not_null:
+              config:
+                severity: error
+                tags: [dq, completeness]
+
+      - name: channel_name
+        tests:
+          - not_null:
+              config:
+                severity: error
+                tags: [dq, completeness]
+
+      - name: region_name
+        tests:
+          - not_null:
+              config:
+                severity: error
+                tags: [dq, completeness]
+
+      - name: classification
+        tests:
+          - not_null:
+              config:
+                severity: error
+                tags: [dq, completeness]
+
+      - name: source_file_name
+        tests:
+          - not_null:
+              config:
+                severity: error
+                tags: [dq, ingestion]
+
+      - name: source_processed_date
+        tests:
+          - not_null:
+              config:
+                severity: error
+                tags: [dq, ingestion]
+
+      - name: quantity
+        tests:
+          - not_null:
+              config:
+                severity: error
+                tags: [dq, quantity]
+
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: false
+              config:
+                severity: error
+                tags: [dq, quantity]
+
+      - name: amount_usd
+        tests:
+          - not_null:
+              config:
+                severity: error
+                tags: [dq, financial]
+
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: false
+              config:
+                severity: error
+                tags: [dq, financial]
+
+      - name: amount_local
+        tests:
+          - not_null:
+              config:
+                severity: error
+                tags: [dq, financial]
+
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: false
+              config:
+                severity: error
+                tags: [dq, financial]
+
+      - name: cost_usd
+        tests:
+          - not_null:
+              config:
+                severity: error
+                tags: [dq, financial]
+
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: false
+              config:
+                severity: error
+                tags: [dq, financial]
+
+      - name: cost_local
+        tests:
+          - not_null:
+              config:
+                severity: error
+                tags: [dq, financial]
+
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: false
+              config:
+                severity: error
+                tags: [dq, financial]
+
+      - name: inventory_quantity
+        tests:
+          - not_null:
+              config:
+                severity: error
+                tags: [dq, inventory]
+
+          - dbt_utils.accepted_range:
+              min_value: 0
+              config:
+                severity: error
+                tags: [dq, inventory]
+
+      - name: inventory_cost_usd
+        tests:
+          - not_null:
+              config:
+                severity: error
+                tags: [dq, inventory]
+
+          - dbt_utils.accepted_range:
+              min_value: 0
+              config:
+                severity: error
+                tags: [dq, inventory]
+
+      - name: inventory_cost_local
+        tests:
+          - not_null:
+              config:
+                severity: error
+                tags: [dq, inventory]
+
+          - dbt_utils.accepted_range:
+              min_value: 0
+              config:
+                severity: error
+                tags: [dq, inventory]
+
+      - name: period_year_month
+        tests:
+          - not_null:
+              config:
+                severity: error
+                tags: [dq, period]
+
+          - dbt_utils.expression_is_true:
+              expression: "regexp_like(period_year_month,'^[0-9]{6}$')"
+              config:
+                severity: error
+                tags: [dq, period]
+
+      - name: period_month
+        tests:
+          - not_null:
+              config:
+                severity: error
+                tags: [dq, period]
+
+      - name: period_year
+        tests:
+          - not_null:
+              config:
+                severity: error
+                tags: [dq, period]

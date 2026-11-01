@@ -8,17 +8,17 @@
 }}
 
 /*
-    model: l0_raw_project_alpha_monthly_weekly
+    model: l0_raw_project_alpha_weekly
 
     purpose:
-    store the raw monthly and weekly dataset received from source files
+    store the raw weekly dataset received from source files
     without applying any business transformation.
 
     load strategy:
     full refresh
 
     source:
-    raw_project_alpha_monthly_weekly
+    raw_project_alpha_weekly
 
     notes:
     - data loaded through transporter_exec_v2
@@ -81,4 +81,4 @@ select
     source_file_name,
     source_processed_date
 
-from {{ source('non_curated', 'raw_project_alpha_monthly_weekly') }}
+from {{ source('non_curated', 'raw_project_alpha_weekly') }}

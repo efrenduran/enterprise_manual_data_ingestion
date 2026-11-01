@@ -12,10 +12,10 @@
 }}
 
 /*
-    model: hist_project_alpha_monthly_weekly
+    model: hist_project_alpha_weekly
 
     purpose:
-    maintain historical snapshots of monthly and weekly project alpha loads.
+    maintain historical snapshots of weekly project alpha loads.
 
     incremental strategy:
     append
@@ -36,7 +36,7 @@
 with data as (
 
     select *
-    from {{ ref('non_curated__raw_project_alpha_monthly_weekly') }}
+    from {{ ref('non_curated__raw_project_alpha_weekly') }}
 
 )
 
