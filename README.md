@@ -3,328 +3,278 @@ Enterprise-grade data ingestion pipeline that automates data ingestion, transfor
 
 ## Arquitetura
 
-┌──────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                INGESTION CONTROL LAYER                                       │
-│                                                                                              │
-│  Config Driven Framework                                                                     │
-│  Control Tables                                                                              │
-│  Watermark Management                                                                        │
-│  Last Successful Load                                                                        │
-│  Dynamic Scheduling                                                                          │
-│  Retry Framework                                                                             │
-│  Backfill Framework                                                                          │
-│  SLA Management                                                                              │
-│  Domain Ownership                                                                            │
-│  Data Contracts                                                                              │
-└──────────────────────────────────────────────────────────────────────────────────────────────┘
-                                                │
-                                                ▼
+```mermaid
+flowchart TD
 
-┌──────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                   SOURCE SYSTEMS                                             │
-│                                                                                              │
-│  Azure Blob │ SFTP │ APIs │ SharePoint │ Vendor Files │ Event Streams │ Kafka │ SAP          │
-│  Salesforce │ Oracle │ SQL Server │ CSV │ JSON │ XML │ Parquet │ CDC Sources                 │
-└──────────────────────────────────────────────────────────────────────────────────────────────┘
-                                                │
-                                                ▼
+A["🏛️ Ingestion Control Layer
+• Config Driven Framework
+• Control Tables
+• Watermark Management
+• Last Successful Load
+• Dynamic Scheduling
+• Retry Framework
+• Backfill Framework
+• SLA Management
+• Domain Ownership
+• Data Contracts"]
 
-┌──────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                  LANDING / DROP ZONE                                         │
-│                                                                                              │
-│  Original Files                                                                              │
-│  Immutable Storage                                                                           │
-│  File Versioning                                                                             │
-│  Archive Retention                                                                           │
-└──────────────────────────────────────────────────────────────────────────────────────────────┘
-                                                │
-                                                ▼
+B["📥 Source Systems
+• Azure Blob
+• SFTP
+• APIs
+• SharePoint
+• Kafka
+• SAP
+• Salesforce
+• Oracle
+• SQL Server
+• CDC Sources
+• CSV / JSON / XML / Parquet"]
 
-┌──────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                 FILE VALIDATION GATE                                         │
-│                                                                                              │
-│  Filename Validation                                                                         │
-│  File Size Validation                                                                        │
-│  Checksum Validation                                                                         │
-│  Duplicate Detection                                                                         │
-│  Compression Validation                                                                      │
-│  Encoding Validation                                                                         │
-│  Header Validation                                                                           │
-│  Delimiter Validation                                                                        │
-│  Record Count Validation                                                                     │
-│  Schema Drift Detection                                                                      │
-│  Data Contract Validation                                                                    │
-└──────────────────────────────────────────────────────────────────────────────────────────────┘
-                                                │
-                                                ▼
+C["📦 Landing / Drop Zone
+• Original Files
+• Immutable Storage
+• File Versioning
+• Archive Retention"]
 
-┌──────────────────────────────────────────────────────────────────────────────────────────────┐
-│                             STAGING / PRE-PROCESSING LAYER                                   │
-│                                                                                              │
-│  Databricks Processing                                                                       │
-│  ZIP Extraction                                                                              │
-│  File Inventory                                                                              │
-│  Metadata Collection                                                                         │
-│  Source Profiling                                                                            │
-│  Technical Lineage Generation                                                                │
-└──────────────────────────────────────────────────────────────────────────────────────────────┘
-                                                │
-                                                ▼
+D["✅ File Validation Gate
+• Filename Validation
+• File Size Validation
+• Checksum Validation
+• Duplicate Detection
+• Compression Validation
+• Encoding Validation
+• Header Validation
+• Delimiter Validation
+• Record Count Validation
+• Schema Drift Detection
+• Data Contract Validation"]
 
-┌──────────────────────────────────────────────────────────────────────────────────────────────┐
-│                             METADATA & LINEAGE CAPTURE                                       │
-│                                                                                              │
-│  Source Metadata                                                                             │
-│  Load Metadata                                                                               │
-│  Column Metadata                                                                             │
-│  Dataset Registration                                                                        │
-│  OpenLineage Integration                                                                     │
-│  Purview / Unity Catalog Registration                                                        │
-└──────────────────────────────────────────────────────────────────────────────────────────────┘
-                                                │
-                                                ▼
+E["⚙️ Staging / Pre-Processing
+• Databricks
+• ZIP Extraction
+• Metadata Collection
+• File Inventory
+• Source Profiling
+• Technical Lineage"]
 
-┌──────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                   RAW LAYER (L0)                                             │
-│                                                                                              │
-│  Immutable Copy                                                                              │
-│  Full History Preservation                                                                   │
-│                                                                                              │
-│  Technical Columns                                                                           │
-│    ingestion_id                                                                              │
-│    batch_id                                                                                  │
-│    ingestion_timestamp                                                                       │
-│    source_file                                                                               │
-│    source_system                                                                             │
-│    source_row_number                                                                         │
-│    record_hash                                                                               │
-│    processing_timestamp                                                                      │
-└──────────────────────────────────────────────────────────────────────────────────────────────┘
-                                                │
-                                                ▼
+F["🧬 Metadata & Lineage
+• Source Metadata
+• Load Metadata
+• Dataset Registration
+• OpenLineage
+• Purview
+• Unity Catalog"]
 
-┌──────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                     MACRO DQ LAYER                                           │
-│                                                                                              │
-│  Historical Volume Comparison                                                                │
-│  Missing File Detection                                                                      │
-│  Unexpected Growth Detection                                                                 │
-│  Unexpected Reduction Detection                                                              │
-│  SLA Compliance                                                                              │
-│  Source vs Target Reconciliation                                                             │
-│  Statistical Distribution Validation                                                         │
-│  Anomaly Detection                                                                           │
-│  Freshness Validation                                                                        │
-│  Timeliness Validation                                                                       │
-└──────────────────────────────────────────────────────────────────────────────────────────────┘
-                                                │
-                                                ▼
+G["🥉 Raw Layer L0
+• Immutable Copy
+• Full History
 
-┌──────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                     MICRO DQ LAYER                                           │
-│                                                                                              │
-│  Not Null                                                                                    │
-│  Unique                                                                                      │
-│  Accepted Values                                                                             │
-│  Regex                                                                                       │
-│  Data Type Validation                                                                        │
-│  Date Validation                                                                             │
-│  Referential Integrity                                                                       │
-│  Cross Table Validation                                                                      │
-│  Business Rules                                                                              │
-│  Great Expectations Rules                                                                    │
-│  DQ Scoring                                                                                  │
-└──────────────────────────────────────────────────────────────────────────────────────────────┘
-                                                │
-                           ┌────────────────────┴────────────────────┐
-                           ▼                                         ▼
+Technical Columns:
+• ingestion_id
+• batch_id
+• ingestion_timestamp
+• source_file
+• source_row_number
+• record_hash"]
 
-             ┌──────────────────────────────┐       ┌──────────────────────────────┐
-             │         QUARANTINE           │       │          VALID DATA          │
-             │                              │       │                              │
-             │ Invalid Data                 │       │ Approved Records             │
-             │ Rejected Rows                │       │ DQ Passed                    │
-             │ Error Classification         │       │ Ready For Processing         │
-             │ Reprocessing Queue           │       │                              │
-             └──────────────────────────────┘       └──────────────────────────────┘
-                                                                 │
-                                                                 ▼
+H["📊 Macro DQ Layer
+• Historical Volume Comparison
+• Missing File Detection
+• Unexpected Growth Detection
+• Unexpected Reduction Detection
+• Freshness Validation
+• Timeliness Validation
+• SLA Compliance
+• Statistical Validation
+• Anomaly Detection
+• Source vs Target Reconciliation"]
 
-┌──────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                CDC / INCREMENTAL ENGINE                                      │
-│                                                                                              │
-│  Watermark Processing                                                                        │
-│  Last Load Retrieval                                                                         │
-│  Incremental Filter                                                                          │
-│  CDC Processing                                                                              │
-│  Hash Comparison                                                                             │
-│  Delta Detection                                                                             │
-│  Insert Detection                                                                            │
-│  Update Detection                                                                            │
-│  Delete Detection                                                                            │
-│  Idempotency Enforcement                                                                     │
-└──────────────────────────────────────────────────────────────────────────────────────────────┘
-                                                │
-                                                ▼
+I["🔎 Micro DQ Layer
+• Not Null
+• Uniqueness
+• Accepted Values
+• Regex Validation
+• Data Type Validation
+• Referential Integrity
+• Cross Table Validation
+• Business Rules
+• Great Expectations
+• DQ Scoring"]
 
-┌──────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                   CURATED LAYER (L1)                                         │
-│                                                                                              │
-│  Type Casting                                                                                │
-│  Deduplication                                                                               │
-│  Standardization                                                                             │
-│  Business Naming                                                                             │
-│  Cleansing                                                                                   │
-│  Surrogate Key Generation                                                                    │
-│  Domain Segregation                                                                          │
-│  Data Product Creation                                                                       │
-└──────────────────────────────────────────────────────────────────────────────────────────────┘
-                                                │
-                                                ▼
+J["🚨 Quarantine Zone
+• Invalid Data
+• Rejected Rows
+• Error Classification
+• Reprocessing Queue"]
 
-┌──────────────────────────────────────────────────────────────────────────────────────────────┐
-│                            BUSINESS ENRICHMENT LAYER (L2)                                    │
-│                                                                                              │
-│  Customer Join                                                                               │
-│  Product Join                                                                                │
-│  Calendar Join                                                                               │
-│  Geographic Join                                                                             │
-│  Financial Join                                                                              │
-│  Reference Data Integration                                                                  │
-│  MDM Matching                                                                                │
-│  Golden Record Resolution                                                                    │
-└──────────────────────────────────────────────────────────────────────────────────────────────┘
-                                                │
-                                                ▼
+K["✅ Valid Data"]
 
-┌──────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                HISTORICAL MANAGEMENT                                         │
-│                                                                                              │
-│  SCD Type 1                                                                                  │
-│  SCD Type 2                                                                                  │
-│  SCD Type 3                                                                                  │
-│  Effective Dating                                                                            │
-│  Version Control                                                                             │
-│  Temporal Tables                                                                             │
-└──────────────────────────────────────────────────────────────────────────────────────────────┘
-                                                │
-                                                ▼
+L["🔄 CDC / Incremental Engine
+• Watermark Processing
+• Last Load Retrieval
+• Incremental Filter
+• CDC Processing
+• Hash Comparison
+• Delta Detection
+• Insert Detection
+• Update Detection
+• Delete Detection
+• Idempotency Enforcement"]
 
-┌──────────────────────────────────────────────────────────────────────────────────────────────┐
-│                              RECONCILIATION FRAMEWORK                                        │
-│                                                                                              │
-│  Source Count vs Target Count                                                                │
-│  Control Totals                                                                              │
-│  Financial Balancing                                                                         │
-│  Revenue Validation                                                                          │
-│  Completeness Validation                                                                     │
-│  Multi-Hop Reconciliation                                                                    │
-└──────────────────────────────────────────────────────────────────────────────────────────────┘
-                                                │
-                                                ▼
+M["🥈 Curated Layer L1
+• Type Casting
+• Standardization
+• Data Cleansing
+• Deduplication
+• Business Naming
+• Surrogate Keys
+• Domain Segregation
+• Data Product Creation"]
 
-┌──────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                 BUSINESS DATA MARTS                                          │
-│                                                                                              │
-│  Fact Tables                                                                                 │
-│  Dimensions                                                                                  │
-│  KPI Aggregations                                                                            │
-│  Semantic Models                                                                             │
-│  Data Products                                                                               │
-└──────────────────────────────────────────────────────────────────────────────────────────────┘
-                                                │
-                                                ▼
+N["🏢 Business Enrichment L2
+• Customer Join
+• Product Join
+• Calendar Join
+• Geographic Join
+• Financial Join
+• Reference Data Integration
+• MDM Matching
+• Golden Record Resolution"]
 
-┌──────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                  ANALYTICS CONSUMPTION                                       │
-│                                                                                              │
-│  Power BI                                                                                    │
-│  Tableau                                                                                     │
-│  Executive Dashboards                                                                        │
-│  Self-Service Analytics                                                                      │
-│  Machine Learning                                                                            │
-│  Feature Store                                                                               │
-│  Reverse ETL                                                                                 │
-└──────────────────────────────────────────────────────────────────────────────────────────────┘
+O["📚 Historical Management
+• SCD Type 1
+• SCD Type 2
+• SCD Type 3
+• Effective Dating
+• Temporal Tables
+• Version Control"]
 
-═══════════════════════════════════════════════════════════════════════════════
-OBSERVABILITY
-═══════════════════════════════════════════════════════════════════════════════
+P["⚖️ Reconciliation Framework
+• Source Count vs Target Count
+• Control Totals
+• Financial Balancing
+• Revenue Validation
+• Completeness Validation
+• Multi-Hop Reconciliation"]
 
-Pipeline Health
-Execution Time
-Rows Processed
-Failed Records
-Cost Per Run
-Resource Consumption
-SLA Monitoring
-DQ Trend Monitoring
+Q["📈 Business Data Marts
+• Fact Tables
+• Dimensions
+• KPI Aggregations
+• Semantic Models
+• Data Products"]
 
-═══════════════════════════════════════════════════════════════════════════════
-DATA GOVERNANCE
-═══════════════════════════════════════════════════════════════════════════════
+R["📊 Analytics Consumption
+• Power BI
+• Tableau
+• Executive Dashboards
+• Self-Service Analytics
+• Machine Learning
+• Feature Store
+• Reverse ETL"]
 
-Data Catalog
-Business Glossary
-Data Stewardship
-Data Ownership
-Data Classification
-Certification
-Lineage
+A --> B
+B --> C
+C --> D
+D --> E
+E --> F
+F --> G
+G --> H
+H --> I
 
-═══════════════════════════════════════════════════════════════════════════════
-SECURITY & PRIVACY
-═══════════════════════════════════════════════════════════════════════════════
+I --> J
+I --> K
 
-RBAC
-ABAC
-Secrets Management
-PII Discovery
-PII Masking
-Column Encryption
-Row Level Security
-Data Retention Policies
+K --> L
+L --> M
+M --> N
+N --> O
+O --> P
+P --> Q
+Q --> R
 
-═══════════════════════════════════════════════════════════════════════════════
-METRICS & KPIs
-═══════════════════════════════════════════════════════════════════════════════
+OBS["📡 Observability
+• Pipeline Health
+• Execution Time
+• Rows Processed
+• Failed Records
+• Cost Monitoring
+• SLA Monitoring
+• DQ Trends"]
 
-DQ Score
-Freshness Score
-Completeness Score
-Pipeline Reliability
-Mean Time To Recovery
-SLA Compliance
-Cost Efficiency
+GOV["🏛️ Data Governance
+• Data Catalog
+• Business Glossary
+• Stewardship
+• Ownership
+• Classification
+• Lineage"]
 
-═══════════════════════════════════════════════════════════════════════════════
-ALERTING & INCIDENT MANAGEMENT
-═══════════════════════════════════════════════════════════════════════════════
+SEC["🔐 Security & Privacy
+• RBAC
+• ABAC
+• Secrets Management
+• PII Discovery
+• PII Masking
+• Encryption
+• Row Level Security"]
 
-Teams Alerts
-Slack Alerts
-Email Alerts
-PagerDuty
-On-Call Escalation
-Auto Ticket Creation
+MET["📏 Metrics & KPIs
+• DQ Score
+• Freshness Score
+• Completeness Score
+• Reliability
+• MTTR
+• Cost Efficiency"]
 
-═══════════════════════════════════════════════════════════════════════════════
-AUTOMATED RECOVERY FRAMEWORK
-═══════════════════════════════════════════════════════════════════════════════
+ALT["🚑 Alerting & Incident Management
+• Teams Alerts
+• Slack Alerts
+• Email Alerts
+• PagerDuty
+• Escalation
+• Auto Ticket Creation"]
 
-Auto Retry
-Auto Reprocessing
-Backfill Framework
-Checkpoint Recovery
-Replay Failed Loads
-Disaster Recovery
+REC["♻️ Automated Recovery
+• Auto Retry
+• Auto Reprocessing
+• Backfill
+• Checkpoint Recovery
+• Replay Failed Loads
+• Disaster Recovery"]
 
-═══════════════════════════════════════════════════════════════════════════════
-DATA MESH ENABLEMENT
-═══════════════════════════════════════════════════════════════════════════════
+MESH["🌐 Data Mesh Enablement
+• Domain Data Products
+• Federated Governance
+• Self-Service Platform
+• Cross-Domain Contracts
+• Domain Ownership"]
 
-Domain-Oriented Data Products
-Federated Governance
-Self-Service Platform
-Cross-Domain Contracts
-Domain Ownership
+OBS -.-> G
+OBS -.-> M
+OBS -.-> R
+
+GOV -.-> F
+GOV -.-> M
+GOV -.-> Q
+
+SEC -.-> G
+SEC -.-> M
+SEC -.-> R
+
+MET -.-> H
+MET -.-> I
+MET -.-> Q
+
+ALT -.-> H
+ALT -.-> I
+ALT -.-> P
+
+REC -.-> L
+REC -.-> M
+
+MESH -.-> M
+MESH -.-> N
+MESH -.-> Q
+```
