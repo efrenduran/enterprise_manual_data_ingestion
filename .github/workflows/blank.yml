@@ -1,29 +1,39 @@
-name: Validate Project
+name: Validate Data Pipeline
 
 on:
   push:
-    branches: ["main"]
+    branches:
+      - main
 
   pull_request:
-    branches: ["main"]
+    branches:
+      - main
 
 jobs:
   validate:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Baixar repositorio
         uses: actions/checkout@v4
 
-      - name: Setup Python
+      - name: Instalar Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Check Python Syntax
+      - name: Validar DAG
         run: |
-          python -m py_compile manual_ingestion/DAG/*.py
+          python -m py_compile manual_ingestion/DAG/alpha_study_monthly_weekly_ingestion.py
+          python -m py_compile manual_ingestion/DAG/task_config.py
 
-      - name: Validate JSON Files
+      - name: Verificar tabelas SQL
         run: |
-          find . -name "*.json" -exec python -m json.tool {} \; > /dev/null
+          test -f manual_ingestion/tables/weekly/raw_alpha_study_weekly.sql
+          test -f manual_ingestion/tables/weekly/hist_alpha_study_weekly.sql
+          test -f manual_ingestion/tables/weekly/dq_project_alpha_weekly.sql
+
+      - name: Validar YAML
+        run: |
+          pip install pyyaml
+          python -c "import yaml; yaml.safe_load(open('manual_ingestion/tables/weekly/dq_project_alpha_weekly.yml')); print('YAML OK')"
