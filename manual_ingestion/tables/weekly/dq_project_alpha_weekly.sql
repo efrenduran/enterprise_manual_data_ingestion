@@ -32,4 +32,3 @@ latest_load as (
 )
 select *
 from latest_load
-/*Test
